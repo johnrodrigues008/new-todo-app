@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { CreateItemDto } from './dto/item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
-import { PrismaService } from 'src/database/prisma.service';
-import { Status } from 'generated/prisma';
+import { PrismaService } from '../database/prisma.service';
+import { Status } from '../../generated/prisma';
 
 @Injectable()
 export class ItemsService {

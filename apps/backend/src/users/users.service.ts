@@ -6,7 +6,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { CreateUserDto, LoginUserDto } from './dto/user.dto';
-import { PrismaService } from 'src/database/prisma.service';
+import { PrismaService } from '../database/prisma.service';
 import { compare, hash } from 'bcrypt';
 import { FormatLoginResponse } from '../common/utils/format.login';
 

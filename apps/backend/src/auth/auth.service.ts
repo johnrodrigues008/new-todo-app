@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'src/database/prisma.service';
-import { CreateUserDto, LoginUserDto } from 'src/users/dto/user.dto';
-import { UsersService } from 'src/users/users.service';
 import { JwtPayload } from './jwt.strategy';
-import { User } from 'generated/prisma';
+import { PrismaService } from 'database/prisma.service';
+import { UsersService } from 'users/users.service';
+import { CreateUserDto, LoginUserDto } from 'users/dto/user.dto';
+import { User } from '../../generated/prisma';
 
 @Injectable()
 export class AuthService {
