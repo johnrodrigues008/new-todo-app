@@ -1,3 +1,4 @@
+import { useRouter } from "next/navigation";
 import {
   createContext,
   useContext,
@@ -8,85 +9,78 @@ import {
 
 interface User {
   id: string;
-  name: string;
   email: string;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (
-    name: string,
-    email: string,
-    password: string,
-  ) => Promise<void>;
+  register: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(
-  undefined,
-);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    // Simular verificação de usuário logado no localStorage
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    try {
+      if (storedUser && storedUser !== "undefined") {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (err) {
+      localStorage.removeItem("user");
+      setUser(null);
     }
     setIsLoading(false);
   }, []);
 
+
   const login = async (email: string, password: string) => {
     setIsLoading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // Simular call de API
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Simulação simples - aceita qualquer email/senha
-    const mockUser: User = {
-      id: "1",
-      name: email.split("@")[0],
-      email,
-    };
-
-    setUser(mockUser);
-    localStorage.setItem("user", JSON.stringify(mockUser));
-    setIsLoading(false);
+      if (!res.ok) throw new Error("Credenciais inválidas");
+      
+      const data = await res.json();
+      localStorage.setItem("token", data.data.token);
+      localStorage.setItem("user_email", data.data.email);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const register = async (
-    name: string,
-    email: string,
-    password: string,
-  ) => {
+  const register = async (email: string, password: string) => {
     setIsLoading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // Simular call de API
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const mockUser: User = {
-      id: Date.now().toString(),
-      name,
-      email,
-    };
-
-    setUser(mockUser);
-    localStorage.setItem("user", JSON.stringify(mockUser));
-    setIsLoading(false);
+      if (!res.ok) throw new Error("Erro ao registrar usuário");
+      console.log(`Conta cadastrada com sucesso!`)
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
+    localStorage.removeItem("user_email");
+    localStorage.removeItem("token");
+    router.push('/login');
   };
 
   return (
@@ -101,9 +95,7 @@ export function AuthProvider({
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error(
-      "useAuth deve ser usado dentro de um AuthProvider",
-    );
+    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
   }
   return context;
 }

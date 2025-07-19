@@ -37,7 +37,6 @@ export function TaskForm({ open, onOpenChange, onSubmit, task, isLoading = false
     onSubmit(title.trim(), description.trim());
     
     if (!task) {
-      // Só limpa os campos se estiver criando uma nova tarefa
       setTitle('');
       setDescription('');
     }

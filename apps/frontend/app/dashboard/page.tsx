@@ -57,24 +57,27 @@ export default function DashboardPage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <h1>Minhas Tarefas</h1>
-            <p className="text-muted-foreground">Bem-vindo, {user?.name}!</p>
+            <p className="text-muted-foreground">Bem-vindo, {user?.email}!</p>
           </div>
+
           <div className="flex items-center gap-2">
-            <Button onClick={() => setIsFormOpen(true)} className="gap-2">
+            <Button onClick={() => setIsFormOpen(true)} className="gap-2 cursor-pointer">
               <Plus className="h-4 w-4" /> Nova Tarefa
             </Button>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" className='cursor-pointer'>
                   <User className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={logout} className="gap-2 text-destructive">
-                  <LogOut className="h-4 w-4" /> Sair
+                <DropdownMenuItem onClick={logout} className="gap-2 text-destructive cursor-pointer">
+                  <LogOut className="h-4 w-4 cursor-pointer" /> Sair
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            
           </div>
         </div>
       </header>
