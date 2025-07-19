@@ -51,4 +51,3 @@ export class CreateUserDto {
   @IsString({ message: 'O campo senha deve ser uma string.' })
   password: string;
 }
-

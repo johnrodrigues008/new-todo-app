@@ -32,7 +32,9 @@ export class UsersService {
         throw new BadRequestException('E-mail já está em uso.');
       }
 
-      throw new InternalServerErrorException('Erro ao processar sua solicitação.');
+      throw new InternalServerErrorException(
+        'Erro ao processar sua solicitação.',
+      );
     }
   }
 
@@ -44,13 +46,19 @@ export class UsersService {
     const user = await this.prisma.user.findFirst({ where: { email } });
 
     if (!user) {
-      throw new HttpException('Credenciais inválidas.', HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        'Credenciais inválidas.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const isPasswordValid = await compare(password, user.password);
 
     if (!isPasswordValid) {
-      throw new HttpException('Credenciais inválidas.', HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        'Credenciais inválidas.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const token = 'meu-token-gerado';
