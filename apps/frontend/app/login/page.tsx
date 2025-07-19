@@ -13,7 +13,6 @@ export default function LoginPage() {
   const [checked, setChecked] = useState(false);
   const router = useRouter();
 
-  // Checagem: se já está autenticado, nem mostra o login
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {

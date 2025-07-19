@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Todo App',
+  title: 'To do App',
   description: 'Gerencie suas tarefas com praticidade',
 };
 

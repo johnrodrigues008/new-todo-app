@@ -6,26 +6,18 @@ import { useTasks, Task } from '@/hooks/useTask';
 import { TaskForm } from '@/components/forms/TaskForm';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import {
   Plus,
-  MoreVertical,
-  Edit,
-  Trash2,
   LogOut,
   User,
   CheckCircle2,
   Circle,
+  Timer,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { TaskCard } from '@/components/tasks/TaskCard';
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
@@ -45,28 +37,33 @@ export default function DashboardPage() {
     }
   }, [router]);
 
-  // Não mostra nada até checar autenticação!
   if (!checked) return null;
 
-  // ...restante do componente igual ao seu original:
-  const handleAddTask = (title: string, description: string) => {
-    addTask(title, description);
+  // Nova contagem por status
+  const totalTasks = tasks.length;
+  const pendingTasks = tasks.filter(task => task.status === 'PENDING');
+  const inProgressTasks = tasks.filter(task => task.status === 'IN_PROGRESS');
+  const doneTasks = tasks.filter(task => task.status === 'DONE');
+
+  const handleAddTask = (title: string, description: string, status: string) => {
+    addTask(title, description, status);
     setIsFormOpen(false);
   };
 
-  const handleEditTask = (title: string, description: string) => {
+  const handleEditTask = (title: string, description: string, status: string) => {
     if (editingTask) {
-      updateTask(editingTask.id, { title, description });
+      updateTask(editingTask.id_task, { title, description, status });
       setEditingTask(null);
     }
   };
 
   const handleDeleteTask = (task: Task) => {
-    deleteTask(task.id);
+    deleteTask(task.id_task);
   };
 
-  const completedTasks = tasks.filter(task => task.completed);
-  const pendingTasks = tasks.filter(task => !task.completed);
+  const handleStatusChange = (id: string, status: string) => {
+    updateTask(id, { status });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -84,7 +81,7 @@ export default function DashboardPage() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className='cursor-pointer'>
+                <Button variant="outline" size="icon" className="cursor-pointer">
                   <User className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -94,7 +91,6 @@ export default function DashboardPage() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            
           </div>
         </div>
       </header>
@@ -106,10 +102,31 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card><CardContent className="p-4 text-center"><p className="text-muted-foreground">Total</p><p>{tasks.length}</p></CardContent></Card>
-              <Card><CardContent className="p-4 text-center"><p className="text-muted-foreground">Pendentes</p><p>{pendingTasks.length}</p></CardContent></Card>
-              <Card><CardContent className="p-4 text-center"><p className="text-muted-foreground">Concluídas</p><p>{completedTasks.length}</p></CardContent></Card>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <p className="text-muted-foreground">Total</p>
+                  <p>{totalTasks}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <p className="text-muted-foreground">Pendentes</p>
+                  <p>{pendingTasks.length}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <p className="text-muted-foreground">Em Andamento</p>
+                  <p>{inProgressTasks.length}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <p className="text-muted-foreground">Concluídas</p>
+                  <p>{doneTasks.length}</p>
+                </CardContent>
+              </Card>
             </div>
 
             {tasks.length === 0 ? (
@@ -126,7 +143,7 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-10">
                 {pendingTasks.length > 0 && (
                   <div>
                     <h2 className="mb-4 flex items-center gap-2">
@@ -134,21 +151,56 @@ export default function DashboardPage() {
                     </h2>
                     <div className="space-y-2">
                       {pendingTasks.map(task => (
-                        <TaskCard key={task.id} task={task} onToggle={toggleTask} onEdit={setEditingTask} onDelete={handleDeleteTask} />
+                        <TaskCard
+                          key={task.id_task}
+                          task={task}
+                          onToggle={toggleTask}
+                          onEdit={setEditingTask}
+                          onDelete={handleDeleteTask}
+                          onStatusChange={handleStatusChange}
+                        />
                       ))}
                     </div>
                   </div>
                 )}
 
-                {completedTasks.length > 0 && (
+                {inProgressTasks.length > 0 && (
                   <div>
                     <Separator />
                     <h2 className="mt-6 mb-4 flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" /> Concluídas ({completedTasks.length})
+                      <Timer className="h-5 w-5 text-yellow-500" /> Em Andamento ({inProgressTasks.length})
                     </h2>
                     <div className="space-y-2">
-                      {completedTasks.map(task => (
-                        <TaskCard key={task.id} task={task} onToggle={toggleTask} onEdit={setEditingTask} onDelete={handleDeleteTask} />
+                      {inProgressTasks.map(task => (
+                        <TaskCard
+                          key={task.id_task}
+                          task={task}
+                          onToggle={toggleTask}
+                          onEdit={setEditingTask}
+                          onDelete={handleDeleteTask}
+                          onStatusChange={handleStatusChange}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {doneTasks.length > 0 && (
+                  <div>
+                    <Separator />
+                    <h2 className="mt-6 mb-4 flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" /> Concluídas ({doneTasks.length})
+                    </h2>
+                    <div className="space-y-2">
+                      {doneTasks.map(task => (
+                        <TaskCard
+                          key={task.id_task}
+                          task={task}
+                          onToggle={toggleTask}
+                          onEdit={setEditingTask}
+                          onDelete={handleDeleteTask}
+                          onStatusChange={handleStatusChange}
+                        />
                       ))}
                     </div>
                   </div>
@@ -169,51 +221,5 @@ export default function DashboardPage() {
         task={editingTask}
       />
     </div>
-  );
-}
-
-interface TaskCardProps {
-  task: Task;
-  onToggle: (id: string) => void;
-  onEdit: (task: Task) => void;
-  onDelete: (task: Task) => void;
-}
-
-function TaskCard({ task, onToggle, onEdit, onDelete }: TaskCardProps) {
-  return (
-    <Card className={`transition-colors ${task.completed ? 'bg-muted/50' : ''}`}>
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          <Checkbox checked={task.completed} onCheckedChange={() => onToggle(task.id)} className="mt-1" />
-          <div className="flex-1 min-w-0">
-            <h3 className={task.completed ? 'line-through text-muted-foreground' : ''}>{task.title}</h3>
-            {task.description && <p className={`text-muted-foreground mt-1 ${task.completed ? 'line-through' : ''}`}>{task.description}</p>}
-            <div className="flex items-center gap-2 mt-2">
-              <Badge variant={task.completed ? 'secondary' : 'default'}>
-                {task.completed ? 'Concluída' : 'Pendente'}
-              </Badge>
-              <span className="text-xs text-muted-foreground">
-                {task.createdAt.toLocaleDateString('pt-BR')}
-              </span>
-            </div>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(task)} className="gap-2">
-                <Edit className="h-4 w-4" /> Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDelete(task)} className="gap-2 text-destructive">
-                <Trash2 className="h-4 w-4" /> Excluir
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </CardContent>
-    </Card>
   );
 }

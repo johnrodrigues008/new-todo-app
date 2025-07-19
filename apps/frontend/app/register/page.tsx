@@ -17,7 +17,6 @@ export default function RegisterPage() {
   const { register, isLoading } = useAuth();
   const router = useRouter();
 
-  // Checa se já está autenticado e redireciona se necessário
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
