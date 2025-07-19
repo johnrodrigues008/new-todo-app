@@ -7,7 +7,12 @@ export enum Status {
   DONE = 'DONE',
 }
 
-export class CreateItemDto {
+export class CreateTaskDto {
+  @ApiProperty({ example: 'uuid-do-autor' })
+  @IsNotEmpty()
+  @IsString()
+  id_author: string;
+
   @ApiProperty({ example: 'Título da tarefa' })
   @IsNotEmpty()
   @IsString()
@@ -23,10 +28,5 @@ export class CreateItemDto {
   @IsEnum(Status, {
     message: 'O status deve ser PENDING, IN_PROGRESS ou DONE.',
   })
-  status: Status;
-
-  @ApiProperty({ example: 'uuid-do-autor' })
-  @IsNotEmpty()
-  @IsString()
-  id_author: string;
+  status?: Status;
 }
