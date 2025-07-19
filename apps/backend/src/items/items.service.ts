@@ -7,7 +7,7 @@ import {
 import { CreateItemDto } from './dto/item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { PrismaService } from '../database/prisma.service';
-import { Status } from '../../generated/prisma';
+import { Status } from '@prisma/client';
 
 @Injectable()
 export class ItemsService {

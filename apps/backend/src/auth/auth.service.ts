@@ -4,7 +4,7 @@ import { JwtPayload } from './jwt.strategy';
 import { PrismaService } from 'database/prisma.service';
 import { UsersService } from 'users/users.service';
 import { CreateUserDto, LoginUserDto } from 'users/dto/user.dto';
-import { User } from '../../generated/prisma';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
