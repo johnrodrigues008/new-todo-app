@@ -51,14 +51,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!res.ok) throw new Error("Credenciais inválidas");
-      
+
       const data = await res.json();
+      console.log(data)
+      const userObj = { id: data.data.id, email: data.data.email };
       localStorage.setItem("token", data.data.token);
-      localStorage.setItem("user_email", data.data.email);
+      localStorage.setItem("user", JSON.stringify(userObj));
+      setUser(userObj);
+
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const register = async (email: string, password: string) => {
     setIsLoading(true);
@@ -70,6 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!res.ok) throw new Error("Erro ao registrar usuário");
+
+      const data = await res.json();
       console.log(`Conta cadastrada com sucesso!`)
     } finally {
       setIsLoading(false);

@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTasks, Task } from '@/hooks/useTask';
 import { TaskForm } from '@/components/forms/TaskForm';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -25,13 +25,30 @@ import {
   CheckCircle2,
   Circle,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const { tasks, isLoading, addTask, updateTask, deleteTask, toggleTask } = useTasks();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [checked, setChecked] = useState(false);
+  const router = useRouter();
 
+  // Checagem do token antes de mostrar a página
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.replace('/login');
+    } else {
+      setChecked(true);
+    }
+  }, [router]);
+
+  // Não mostra nada até checar autenticação!
+  if (!checked) return null;
+
+  // ...restante do componente igual ao seu original:
   const handleAddTask = (title: string, description: string) => {
     addTask(title, description);
     setIsFormOpen(false);

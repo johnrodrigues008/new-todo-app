@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/input';
@@ -13,8 +13,19 @@ import { toast } from 'sonner';
 export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [checked, setChecked] = useState(false);
   const { register, isLoading } = useAuth();
   const router = useRouter();
+
+  // Checa se já está autenticado e redireciona se necessário
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      router.replace('/dashboard');
+    } else {
+      setChecked(true);
+    }
+  }, [router]);
 
   const handleSubmit = async (email: string, password: string) => {
     setError('');
@@ -23,12 +34,10 @@ export default function RegisterPage() {
       setError('Todos os campos são obrigatórios');
       return;
     }
-
     if (password !== confirmPassword) {
       setError('As senhas não coincidem');
       return;
     }
-
     if (password.length < 6) {
       setError('A senha deve ter pelo menos 6 caracteres');
       return;
@@ -36,13 +45,14 @@ export default function RegisterPage() {
 
     try {
       await register(email, password);
-      router.push('/login');
       toast.success('Cadastro realizado com sucesso!', { duration: 1200 });
+      router.push('/login');
     } catch {
       toast.error('Erro ao criar conta. Tente novamente.');
-
     }
   };
+
+  if (!checked) return null;
 
   return (
     <AuthForm
@@ -76,6 +86,5 @@ export default function RegisterPage() {
         </p>
       }
     />
-
   );
 }
