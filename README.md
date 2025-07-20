@@ -1,46 +1,118 @@
-# 🚧 Em Construção... Mas Chegaremos Lá! 🚀
+# README - Deploy Automatizado Backend + Frontend via GitHub Actions
 
-Olá, explorador de repositórios! 👋
+## Estrutura do Projeto
 
-Este projeto está atualmente **em fase de construção** — mas não se preocupe, grandes coisas estão por vir! 💡
+O projeto é organizado como monorepo:
 
-Estamos levantando as estruturas, conectando os fios, polindo os detalhes e injetando café na equipe para entregar algo incrível. ☕⚙️
+```
+/apps/backend    # Backend API NestJS + Prisma
+/apps/frontend   # Frontend Next.js
+```
 
----
+O banco de dados PostgreSQL está hospedado no Railway e conectado ao backend.
 
-## 🏗️ O Que Está Acontecendo Aqui?
-
-Imagine este repositório como um canteiro de obras:
-- 🔧 Estamos ajustando os primeiros commits
-- 🧱 Montando os componentes essenciais
-- 🧪 Testando ideias malucas (e geniais!)
-- 🧠 Projetando com carinho e boas práticas
+O deploy é automatizado usando GitHub Actions, que executa testes, builds e faz deploys sequenciais do backend no Railway e do frontend na Vercel.
 
 ---
 
-## 📅 Quando Fica Pronto?
+## Workflow GitHub Actions (`ci.yml`)
 
-Logo! ⏳  
-Estamos dedicados a criar algo sólido, funcional e bem documentado. Assim que tivermos uma versão inicial, você será o primeiro a saber (ou talvez o segundo, mas com carinho ❤️).
+O workflow dispara automaticamente ao fazer push na branch `main` e realiza:
+
+### Job 1: Backend
+
+- Instala Node.js (versão 18)
+- Navega para `apps/backend`
+- Instala dependências com `npm install`
+- Roda testes com `npm test`
+- Gera build com `npm run build`
+- Instala CLI do Railway
+- Faz deploy do backend no Railway com `railway up --detach`
+
+### Job 2: Frontend (depende do backend terminar)
+
+- Instala Node.js (versão 18)
+- Navega para `apps/frontend`
+- Instala dependências
+- Roda testes do frontend
+- Gera build da aplicação Next.js
+- Instala CLI da Vercel
+- Faz deploy na Vercel com `vercel --prod`
 
 ---
 
-## 💬 Quer Conversar?
+## Configuração de Secrets no GitHub
 
-Tem sugestões, ideias ou só quer dar um alô?  
-Fique à vontade para abrir uma **issue** ou me chamar por aqui. Adoramos feedbacks e café. ☕😉
+Configure os seguintes secrets no repositório do GitHub em **Settings > Secrets and variables > Actions**:
 
----
-
-## 📌 Fique de Olho!
-
-Este README vai mudar em breve com:
-- 📘 Documentação oficial
-- 🚀 Instruções de uso
-- 💻 Exemplos de execução
+| Nome do Secret       | Descrição                             | Como obter                      |
+|----------------------|------------------------------------|--------------------------------|
+| `RAILWAY_API_KEY`    | Token para deploy Railway CLI       | Conta Railway > API Keys        |
+| `VERCEL_TOKEN`       | Token para deploy Vercel CLI        | Conta Vercel > Tokens           |
 
 ---
 
-> “Todo grande projeto começa com uma ideia... e um `npm init`.” 😄
+## Deploy Manual
 
-Volte em breve e acompanhe o progresso! 👷‍♂️👷‍♀️
+### Backend
+
+```bash
+curl -sSL https://railway.app/install.sh | sh
+cd apps/backend
+railway login
+railway link
+railway up --detach
+```
+
+### Frontend
+
+```bash
+npm install -g vercel
+cd apps/frontend
+vercel login
+vercel --prod
+```
+
+---
+
+## Testes e Build Locais
+
+### Backend
+
+```bash
+cd apps/backend
+npm install
+npm test
+npm run build
+```
+
+### Frontend
+
+```bash
+cd apps/frontend
+npm install
+npm test
+npm run build
+```
+
+---
+
+## Recomendações para Uso
+
+- Utilize branches para desenvolvimento e faça merge em `master` via pull request.  
+- Push direto em `master` dispara o deploy automático.  
+- Atualize os secrets caso altere tokens nas plataformas.  
+- Monitore as Actions no GitHub para identificar erros.
+
+---
+
+## Contato
+
+Dúvidas ou problemas? Entre em contato:
+
+- Email: john.rodrigues008@gmail.com  
+- Slack/Discord: john.rodrigues008
+
+---
+
+**Pronto para um deploy contínuo seguro e eficiente!** 🚀
