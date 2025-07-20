@@ -13,7 +13,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
+} from '@/components/ui/popover';
 import {
   Command,
   CommandEmpty,
@@ -21,18 +21,23 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 
 type Status = {
-  value: string
-  label: string
-}
+  value: string;
+  label: string;
+};
 
 const STATUSES: Status[] = [
   { value: 'PENDING', label: 'Pendente' },
   { value: 'IN_PROGRESS', label: 'Em andamento' },
   { value: 'DONE', label: 'Concluída' },
 ];
+
+// Extensão local do tipo Task para incluir status
+interface TaskWithStatus extends Task {
+  status: string;
+}
 
 interface TaskFormProps {
   open: boolean;
@@ -51,10 +56,11 @@ export function TaskForm({ open, onOpenChange, onSubmit, task, isLoading = false
 
   useEffect(() => {
     if (task) {
+      const taskWithStatus = task as TaskWithStatus;
       setTitle(task.title);
       setDescription(task.description);
       setSelectedStatus(
-        STATUSES.find((s) => s.value === (task as any).status) || STATUSES[0]
+        STATUSES.find((s) => s.value === taskWithStatus.status) || STATUSES[0]
       );
     } else {
       setTitle('');
@@ -136,8 +142,8 @@ export function TaskForm({ open, onOpenChange, onSubmit, task, isLoading = false
                           onSelect={(value) => {
                             setSelectedStatus(
                               STATUSES.find((s) => s.value === value) || STATUSES[0]
-                            )
-                            setStatusPopoverOpen(false)
+                            );
+                            setStatusPopoverOpen(false);
                           }}
                         >
                           {status.label}

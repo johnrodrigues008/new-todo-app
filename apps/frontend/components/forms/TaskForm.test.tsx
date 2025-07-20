@@ -53,7 +53,6 @@ describe("TaskForm", () => {
     expect(screen.getByRole("textbox", { name: /título/i })).toBeDisabled();
     expect(screen.getByRole("textbox", { name: /descrição/i })).toBeDisabled();
     expect(screen.getByRole("button", { name: /cancelar/i })).toBeDisabled();
-    // Para o botão de submit que mostra 'Salvando...' no isLoading
     expect(screen.getByText(/salvando/i).closest("button")).toBeDisabled();
   });
 
@@ -65,7 +64,7 @@ describe("TaskForm", () => {
     const inputTitle = screen.getByRole("textbox", { name: /título/i });
     const inputDescription = screen.getByRole("textbox", { name: /descrição/i });
     const btnStatus = screen.getByRole("button", { name: /pendente/i });
-    const btnSubmit = screen.getByRole("button", { name: /criar/i }); // alterado para "criar"
+    const btnSubmit = screen.getByRole("button", { name: /criar/i });
 
     await userEvent.type(inputTitle, "Nova tarefa");
     await userEvent.type(inputDescription, "Descrição nova");
@@ -83,7 +82,7 @@ describe("TaskForm", () => {
     render(
       <TaskForm open={true} onOpenChange={onOpenChange} onSubmit={onSubmit} />
     );
-    const btnSubmit = screen.getByRole("button", { name: /criar/i }); // alterado para "criar"
+    const btnSubmit = screen.getByRole("button", { name: /criar/i });
     fireEvent.click(btnSubmit);
     expect(onSubmit).not.toHaveBeenCalled();
   });

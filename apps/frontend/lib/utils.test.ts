@@ -1,23 +1,24 @@
 import { cn } from './utils';
 
+type ClsxArg = string | Record<string, boolean> | ClsxArg[] | null | undefined;
+
 jest.mock('clsx', () => ({
   __esModule: true,
-  clsx: (...args: any[]) =>
+  clsx: (...args: ClsxArg[]) =>
     args
-      .flat(Infinity)
+      .flat()
       .filter(Boolean)
       .flatMap(arg => {
-        if (typeof arg === 'object' && !Array.isArray(arg)) {
+        if (arg && typeof arg === 'object' && !Array.isArray(arg)) {
           return Object.keys(arg).filter(key => !!arg[key]);
         }
-        return arg;
+        return arg as string;
       })
       .join(' ')
 }));
 
-
 jest.mock('tailwind-merge', () => ({
-  twMerge: (classes: any) => classes.replace(/\s+/g, ' '),
+  twMerge: (classes: string) => classes.replace(/\s+/g, ' '),
 }));
 
 describe('cn', () => {
