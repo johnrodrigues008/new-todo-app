@@ -65,3 +65,4 @@ pnpm-lock.yaml
 
 /temp
 /tmp
+/jest.config.js.map
