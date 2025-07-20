@@ -1,18 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ItemsController } from './items.controller';
-import { ItemsService } from './items.service';
+import { TasksController } from './tasks.controller';
+import { TasksService } from './tasks.service';
 import { PrismaService } from '../database/prisma.service';
 
-describe('ItemsController', () => {
-  let controller: ItemsController;
+describe('TasksController', () => {
+  let controller: TasksController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [ItemsController],
-      providers: [ItemsService, PrismaService],
+      controllers: [TasksController],
+      providers: [TasksService, PrismaService],
     }).compile();
 
-    controller = module.get<ItemsController>(ItemsController);
+    controller = module.get<TasksController>(TasksController);
   });
 
   it('deve estar definido', () => {
