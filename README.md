@@ -1,118 +1,154 @@
-# README - Deploy Automatizado Backend + Frontend via GitHub Actions
+# ToDo List - Desafio Técnico Full Stack (Nível Pleno)
 
-## Estrutura do Projeto
-
-O projeto é organizado como monorepo:
-
-```
-/apps/backend    # Backend API NestJS + Prisma
-/apps/frontend   # Frontend Next.js
-```
-
-O banco de dados PostgreSQL está hospedado no Railway e conectado ao backend.
-
-O deploy é automatizado usando GitHub Actions, que executa testes, builds e faz deploys sequenciais do backend no Railway e do frontend na Vercel.
+**Empresa:** Cogna Martech  
+**Autor:** John Rodrigues
 
 ---
 
-## Workflow GitHub Actions (`ci.yml`)
+## Objetivo:
 
-O workflow dispara automaticamente ao fazer push na branch `main` e realiza:
-
-### Job 1: Backend
-
-- Instala Node.js (versão 18)
-- Navega para `apps/backend`
-- Instala dependências com `npm install`
-- Roda testes com `npm test`
-- Gera build com `npm run build`
-- Instala CLI do Railway
-- Faz deploy do backend no Railway com `railway up --detach`
-
-### Job 2: Frontend (depende do backend terminar)
-
-- Instala Node.js (versão 18)
-- Navega para `apps/frontend`
-- Instala dependências
-- Roda testes do frontend
-- Gera build da aplicação Next.js
-- Instala CLI da Vercel
-- Faz deploy na Vercel com `vercel --prod`
+Este projeto é a resolução do desafio técnico Full Stack proposto pela Cogna Martech.  
+Trata-se de uma aplicação para gerenciamento de tarefas (ToDo), contemplando autenticação de usuários e operações CRUD para tarefas, com foco em boas práticas, arquitetura desacoplada e uso de tecnologias modernas.
 
 ---
 
-## Configuração de Secrets no GitHub
+## Como rodar o projeto?
 
-Configure os seguintes secrets no repositório do GitHub em **Settings > Secrets and variables > Actions**:
+Este projeto possui 3 formas principais para rodar, visando demonstrar conhecimento em Docker, Kubernetes, serverless e deploy em diversas plataformas.
 
-| Nome do Secret       | Descrição                             | Como obter                      |
-|----------------------|------------------------------------|--------------------------------|
-| `RAILWAY_API_KEY`    | Token para deploy Railway CLI       | Conta Railway > API Keys        |
-| `VERCEL_TOKEN`       | Token para deploy Vercel CLI        | Conta Vercel > Tokens           |
+### 1. Opção - Execução com Docker (Configuração local)
 
----
+Para rodar com Docker, certifique-se de ter o [Docker Desktop](https://www.docker.com/products/docker-desktop) instalado.
 
-## Deploy Manual
-
-### Backend
+- Crie um arquivo `.env` dentro das pastas `backend` e `frontend`, copiando as variáveis de ambiente do arquivo `.env.example`.
+- No terminal, estando na raiz do projeto, execute:
 
 ```bash
-curl -sSL https://railway.app/install.sh | sh
-cd apps/backend
-railway login
-railway link
-railway up --detach
+docker-compose up
+# ou para rebuildar as imagens
+docker-compose up --build
 ```
 
-### Frontend
+O projeto ficará disponível em `http://localhost:3000`.
 
-```bash
-npm install -g vercel
-cd apps/frontend
-vercel login
-vercel --prod
-```
+OBS: Este processo foi projetado para simplificar a experiência do usuário, eliminando a necessidade de lidar manualmente com migrações de banco ou configurações locais complexas.
 
 ---
 
-## Testes e Build Locais
+### 2. Opção - Execução local com banco externo
 
-### Backend
+Se preferir rodar localmente sem Docker, utilizando um banco externo (como Neon db):
+
+- Crie uma conta em Neon, crie um projeto e copie a variável DATABASE_URL do painel .env.
+
+- Crie um arquivo .env na pasta apps/backend com essa variável.
+
+No terminal, navegue até apps/backend, execute:
 
 ```bash
 cd apps/backend
 npm install
-npm test
-npm run build
+npx prisma generate
+npx prisma migrate deploy
+npm run start:dev
 ```
 
-### Frontend
+- Em outro terminal, navegue até o frontend:
 
 ```bash
 cd apps/frontend
 npm install
+npm run dev
+```
+
+Acesse `http://localhost:3000` para usar a aplicação.
+
+---
+
+### 3. Opção - Deploy com GitHub Actions
+
+O projeto está configurado com GitHub Actions para CI/CD. A pipeline realiza:
+
+- Build e testes automatizados (backend com Jest, frontend com Jest + Babel)
+- Deploy automático do frontend na Vercel
+- Deploy do backend e banco na Render.com
+
+**Links dos serviços em produção:**
+
+- Frontend: *[seu-url-na-vercel]*
+- Backend: *[seu-url-na-render]*
+
+---
+
+## Testes Locais
+
+O projeto conta com testes unitários e de integração no backend e no frontend.
+
+- **Backend:** Utiliza Jest para testar controllers, services e integração com Prisma.
+- **Frontend:** Utiliza Jest com Babel para rodar testes em componentes React, hooks e utilitários.
+
+> Obs: O frontend usa Turbopack para renderização rápida, mas como o Turbopack ainda não suporta testes robustos, utilizamos Babel para os testes.
+
+Para rodar todos os testes localmente, navegue até as pastas backend ou frontend e execute o seguinte comando:
+
+```bash
 npm test
-npm run build
+```
+
+Este comando roda os testes do backend ou do frontend dependendo da pasta em que esteja, garantindo a qualidade da aplicação.
+
+---
+
+## Tecnologias Utilizadas
+
+- **Frontend:** Next.js + TypeScript + TailwindCSS + ShadCN UI + Turbopack (renderização)
+- **Backend:** NestJS + TypeScript + Prisma ORM + JWT + Class Validator + Jest
+- **Banco:** PostgreSQL (Neon serverless + local via Docker + Render serverless)
+- **CI/CD:** GitHub Actions (build, test, deploy automático)
+- **Docker:** Docker Compose para desenvolvimento local
+- **Testes:** Jest (backend e frontend), Jest Babel (frontend)
+- **Documentação:** Readme + Swagger.
+- **Husky + Lint-staged:** Melhorar a qualidade do código e automatizar verificações antes dos commits no Git. 
+
+---
+
+## Estrutura do Repositório
+
+```
+/my-todo-app
+│
+├── apps
+│   ├── frontend    # Next.js + React + TypeScript
+│   └── backend     # NestJS + TypeScript + Prisma
+│
+├── prisma          # Schema e migrations do Prisma
+│   └── schema.prisma
+│
+├── .github
+│   └── workflows   # Configuração do GitHub Actions
+│       └── ci.yml
+│
+└── README.md
 ```
 
 ---
 
-## Recomendações para Uso
+## Fluxo de Desenvolvimento
 
-- Utilize branches para desenvolvimento e faça merge em `master` via pull request.  
-- Push direto em `master` dispara o deploy automático.  
-- Atualize os secrets caso altere tokens nas plataformas.  
-- Monitore as Actions no GitHub para identificar erros.
+- Configure as variáveis de ambiente `.env` no backend e frontend.
+- Execute `docker-compose up` para rodar todos os serviços em containers.
+- Para rodar localmente, inicie backend e frontend separadamente, configurando o banco externo.
+- Execute `npm test` para rodar todos os testes localmente.
+- Deploy automático via GitHub Actions.
 
 ---
 
 ## Contato
 
-Dúvidas ou problemas? Entre em contato:
-
-- Email: john.rodrigues008@gmail.com  
-- Slack/Discord: john.rodrigues008
+Em caso de dúvidas ou sugestões, sinta-se à vontade para abrir uma issue ou contatar via GitHub.
 
 ---
 
-**Pronto para um deploy contínuo seguro e eficiente!** 🚀
+**Obrigado pela oportunidade!**
+
+John Rodrigues
