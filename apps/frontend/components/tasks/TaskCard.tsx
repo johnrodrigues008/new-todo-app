@@ -78,9 +78,15 @@ export function TaskCard({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button
+                aria-label="mais opções"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+              >
                 <MoreVertical className="h-4 w-4" />
               </Button>
+
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(task)} className="gap-2">
