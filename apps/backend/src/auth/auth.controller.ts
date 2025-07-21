@@ -1,14 +1,7 @@
-import {
-  Body,
-  Controller,
-  HttpException,
-  HttpStatus,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService, RegistrationStatus } from './auth.service';
 import { CreateUserDto, LoginUserDto } from '../users/dto/user.dto';
-
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -18,8 +11,7 @@ export class AuthController {
   public async register(
     @Body() createUserDto: CreateUserDto,
   ): Promise<RegistrationStatus> {
-    const result: RegistrationStatus =
-      await this.authService.register(createUserDto);
+    const result = await this.authService.register(createUserDto);
     if (!result.success) {
       throw new HttpException(result.message, HttpStatus.BAD_REQUEST);
     }
@@ -28,6 +20,6 @@ export class AuthController {
 
   @Post('login')
   public async login(@Body() loginUserDto: LoginUserDto): Promise<any> {
-    return await this.authService.login(loginUserDto);
+    return this.authService.login(loginUserDto);
   }
 }

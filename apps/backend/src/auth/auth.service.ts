@@ -1,59 +1,64 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from './jwt.strategy';
-import { PrismaService } from 'database/prisma.service';
-import { UsersService } from 'users/users.service';
-import { CreateUserDto, LoginUserDto } from 'users/dto/user.dto';
+import { UsersService } from '../users/users.service';
+import { CreateUserDto, LoginUserDto } from '../users/dto/user.dto';
 import { User } from '@prisma/client';
+
+export interface JwtPayload {
+  sub: string;
+  email: string;
+}
+
+export interface RegistrationStatus {
+  success: boolean;
+  message: string;
+  data?: User;
+}
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
   ) {}
 
   async register(userDto: CreateUserDto): Promise<RegistrationStatus> {
-    let status: RegistrationStatus = {
-      success: true,
-      message: 'Conta criada com sucesso.',
-    };
-
     try {
-      status.data = await this.usersService.create(userDto);
-    } catch (err) {
-      status = {
-        success: false,
-        message: err,
+      const user = await this.usersService.create(userDto);
+      return {
+        success: true,
+        message: 'Conta criada com sucesso.',
+        data: user,
       };
+    } catch (err) {
+      const message =
+        err instanceof HttpException
+          ? (err.getResponse() as string)
+          : 'Erro interno ao criar conta.';
+      return { success: false, message };
     }
-    return status;
   }
 
   async login(loginUserDto: LoginUserDto): Promise<any> {
     const user = await this.usersService.findByLogin(loginUserDto);
-
-    const token = this._createToken(user);
-
+    const { token, expiresIn } = this._createToken(user);
     return {
       success: true,
       message: 'Login efetuado com sucesso.',
       data: {
-        ...user,
-        token: token.Authorization,
-        expiresIn: token.expiresIn,
+        id: user.id,
+        email: user.email,
+        token,
+        expiresIn,
       },
     };
   }
 
-  private _createToken({ email }): any {
-    const user: JwtPayload = { email };
-    const Authorization = this.jwtService.sign(user);
-    return {
-      expiresIn: process.env.EXPIRESIN,
-      Authorization,
-    };
+  private _createToken(user: { id: string; email: string }) {
+    const expiresIn = process.env.EXPIRESIN || '1d';
+    const payload: JwtPayload = { sub: user.id, email: user.email };
+    const token = this.jwtService.sign(payload);
+    return { token, expiresIn };
   }
 
   async validateUser(payload: JwtPayload): Promise<any> {
@@ -63,16 +68,4 @@ export class AuthService {
     }
     return user;
   }
-}
-
-export interface RegistrationStatus {
-  success: boolean;
-  message: string;
-  data?: User;
-}
-
-export interface RegistrationSeederStatus {
-  success: boolean;
-  message: string;
-  data?: User[];
 }

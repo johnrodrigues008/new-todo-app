@@ -1,14 +1,18 @@
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { AuthService } from './auth.service';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { AuthService } from './auth.service';
 
+export interface JwtPayload {
+  sub: string;
+  email: string;
+}
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly authService: AuthService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: true,
+      ignoreExpiration: false,
       secretOrKey: process.env.SECRETKEY!,
     });
   }
@@ -16,12 +20,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload): Promise<any> {
     const user = await this.authService.validateUser(payload);
     if (!user) {
-      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Token inválido', HttpStatus.UNAUTHORIZED);
     }
     return user;
   }
-}
-
-export interface JwtPayload {
-  email: string;
 }
