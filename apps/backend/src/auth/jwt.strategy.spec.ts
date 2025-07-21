@@ -1,5 +1,5 @@
-import { JwtStrategy, JwtPayload } from './jwt.strategy';
-import { AuthService } from './auth.service';
+import { JwtStrategy } from './jwt.strategy';
+import { AuthService, JwtPayload } from './auth.service';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 describe('JwtStrategy', () => {
@@ -15,7 +15,7 @@ describe('JwtStrategy', () => {
   });
 
   it('deve retornar o usuário se o token for válido', async () => {
-    const payload: JwtPayload = { email: 'teste@exemplo.com' };
+    const payload: JwtPayload = { sub: '1', email: 'teste@exemplo.com' };
     const mockUser = { id: '1', email: payload.email };
 
     (authService.validateUser as jest.Mock).mockResolvedValue(mockUser);
@@ -26,15 +26,16 @@ describe('JwtStrategy', () => {
     expect(result).toEqual(mockUser);
   });
 
-  it('deve lançar exceção se o usuário for inválido', async () => {
-    const payload: JwtPayload = { email: 'invalido@exemplo.com' };
+  it('deve lançar HttpException se o token for inválido', async () => {
+    const payload: JwtPayload = { sub: '1', email: 'invalido@exemplo.com' };
 
     (authService.validateUser as jest.Mock).mockResolvedValue(null);
 
-    await expect(jwtStrategy.validate(payload)).rejects.toThrowError(
-      new HttpException('Invalid token', HttpStatus.UNAUTHORIZED),
-    );
+    const validatePromise = jwtStrategy.validate(payload);
 
+    await expect(validatePromise).rejects.toThrow(
+      new HttpException('Token inválido', HttpStatus.UNAUTHORIZED),
+    );
     expect(authService.validateUser).toHaveBeenCalledWith(payload);
   });
 });

@@ -2,6 +2,7 @@ import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/commo
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService, RegistrationStatus } from './auth.service';
 import { CreateUserDto, LoginUserDto } from '../users/dto/user.dto';
+
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
