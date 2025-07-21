@@ -26,6 +26,8 @@ export function useTasks() {
       const user = localStorage.getItem('user');
       const id_user = user ? JSON.parse(user).id : null;
       const res = await fetch(`${API_URL}/tasks/user/${id_user}`, {
+        mode: 'cors',         
+        credentials: 'include',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -46,6 +48,8 @@ export function useTasks() {
 
     const res = await fetch(`${API_URL}/tasks`, {
       method: 'POST',
+      mode: 'cors',         
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -61,6 +65,8 @@ export function useTasks() {
     console.log('Payload de update:', updates);
     const res = await fetch(`${API_URL}/tasks/${id_task}`, {
       method: 'PATCH',
+      mode: 'cors',         
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -79,6 +85,8 @@ export function useTasks() {
     const token = localStorage.getItem('token');
     const res = await fetch(`${API_URL}/tasks/${id_task}`, {
       method: 'DELETE',
+      mode: 'cors',         
+      credentials: 'include',
       headers: {
         Authorization: `Bearer ${token}`,
       },

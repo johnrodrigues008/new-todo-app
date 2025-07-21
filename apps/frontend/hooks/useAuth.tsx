@@ -46,6 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: "POST",
+        mode: 'cors',         
+        credentials: 'include', 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
@@ -70,6 +72,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
         method: "POST",
+        mode: 'cors',         
+        credentials: 'include',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
