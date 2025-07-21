@@ -10,7 +10,8 @@ async function bootstrap() {
     origin: [
       `http://localhost:${process.env.PORTORIGINCORS ?? 3000}`,                                  
       'https://new-todo-app-back.onrender.com',                      
-      'https://frontend-narmssz79-johnrodrigues008s-projects.vercel.app' 
+      'https://frontend-narmssz79-johnrodrigues008s-projects.vercel.app',
+      'https://frontend-xi-two-20.vercel.app'
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
